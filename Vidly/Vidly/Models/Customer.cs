@@ -23,7 +23,7 @@ namespace Vidly.Models
     public byte MemberShipTypeId { get; set; }
 
     [Display( Name = "Date of Birth" )]
-    [Column(TypeName="Date")]
+    [Column( TypeName = "Date" )]
     public DateTime BirthDate { get; set; }
   }
 }
