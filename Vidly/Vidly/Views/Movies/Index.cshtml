@@ -1,4 +1,5 @@
-﻿@model Vidly.ViewModels.MovieViewModel
+﻿@using Vidly.Models
+@model List<Vidly.Models.Movie>
 
 @{
   ViewBag.Title = "Movies";
@@ -8,12 +9,16 @@
 <h2>Movies</h2>
 
 <table class="table table-bordered table-hover">
-    <tr><th>Movie</th></tr>
+    <tr>
+        <th>Movie</th>
+        <th>Genre</th>
+    </tr>
 
-    @foreach( var movie in Model.Movies )
+    @foreach( var movie in Model )
     {
         <tr>
             <td>@Html.ActionLink( @movie.Name, "Details/" + @movie.Id, "Movies")</td>
+            <td>@movie.Genre.Name</td>
         </tr>
     }
 </table>

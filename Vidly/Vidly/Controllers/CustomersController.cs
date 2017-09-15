@@ -5,34 +5,90 @@ using System.Web;
 using System.Web.Mvc;
 using Vidly.Models;
 using Vidly.ViewModels;
+using System.Data.Entity;
 
 namespace Vidly.Controllers
 {
   public class CustomersController : Controller
   {
-    List<Customer> _customers = new List<Customer>
+    private ApplicationDbContext _context;
+
+    //-------------------------------------------------------------------------
+
+    public CustomersController()
     {
-      new Customer() {Name = "John Smith", Id = 0},
-      new Customer() {Name = "Mary Williams", Id = 1}
-    };
+      _context = new ApplicationDbContext();
+    }
+
+    //-------------------------------------------------------------------------
+
+    protected override void Dispose( bool disposing )
+    {
+      _context.Dispose();
+    }
 
     //-------------------------------------------------------------------------
 
     public ActionResult Index()
     {
-      var viewModel = new CustomerViewModel()
-      {
-        Customers = _customers
-      };
+      var customers = _context.Customers.Include( c => c.MembershipType ).ToList();
 
-      return View( viewModel );
+      return View( customers );
     }
 
     //-------------------------------------------------------------------------
 
     public ActionResult Details( int id )
     {
-      return View( _customers[ id ] );
+      var customer = _context.Customers.Include( c => c.MembershipType ).SingleOrDefault( c => c.Id == id );
+
+      if( customer == null )
+        return HttpNotFound();
+
+      return View( customer );
+    }
+
+    //-------------------------------------------------------------------------
+
+    public ActionResult New()
+    {
+      var membershipTypes = _context.MembershipTypes.ToList();
+
+      var viewModel = new CustomerFormViewModel()
+      {
+        MembershipTypes = membershipTypes
+      };
+
+      return View( "CustomerForm", viewModel );
+    }
+
+    //-------------------------------------------------------------------------
+
+    [HttpPost]
+    public ActionResult Create( Customer customer )
+    {
+      _context.Customers.Add( customer );
+      _context.SaveChanges();
+
+      return RedirectToAction( "Index", "Customers" );
+    }
+
+    //-------------------------------------------------------------------------
+
+    public ActionResult Edit( int id )
+    {
+      var customer = _context.Customers.SingleOrDefault( c => c.Id == id );
+
+      if( customer == null )
+        return HttpNotFound();
+
+      var viewModel = new CustomerFormViewModel()
+      {
+        Customer = customer,
+        MembershipTypes = _context.MembershipTypes.ToList()
+      };
+
+      return View( "CustomerForm", viewModel );
     }
 
     //-------------------------------------------------------------------------

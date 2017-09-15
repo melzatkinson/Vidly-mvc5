@@ -4,37 +4,47 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Vidly.Models;
-using Vidly.ViewModels;
+using System.Data.Entity;
 
 namespace Vidly.Controllers
 {
   public class MoviesController : Controller
   {
+    private ApplicationDbContext _context;
+
     //-------------------------------------------------------------------------
 
-    List<Movie> _movies = new List<Movie>
+    public MoviesController()
     {
-      new Movie() {Name = "Shrek", Id = 0},
-      new Movie() {Name = "Wall-e", Id = 1}
-    };
+      _context = new ApplicationDbContext();
+    }
+
+    //-------------------------------------------------------------------------
+
+    protected override void Dispose( bool dispose )
+    {
+      _context.Dispose();
+    }
 
     //-------------------------------------------------------------------------
 
     public ActionResult Index()
     {
-      var viewModel = new MovieViewModel
-      {
-        Movies = _movies
-      };
+      var movies = _context.Movies.Include( m => m.Genre ).ToList();
 
-      return View( viewModel );
+      return View( movies );
     }
 
     //-------------------------------------------------------------------------
 
     public ActionResult Details( int id )
     {
-      return View( _movies[ id ] );
+      var movie = _context.Movies.Include( m => m.Genre ).SingleOrDefault( m => m.Id == id );
+
+      if( movie == null )
+        return HttpNotFound();
+
+      return View( movie );
     }
 
     //-------------------------------------------------------------------------
