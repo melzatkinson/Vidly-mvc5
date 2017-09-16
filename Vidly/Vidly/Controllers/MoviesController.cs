@@ -88,8 +88,6 @@ namespace Vidly.Controllers
     {
       if( !ModelState.IsValid )
       {
-        var actionName = movie.Id == 0 ? "New Movie" : "Edit Movie";
-
         var viewModel = new MovieFormViewModel( movie )
         {
           Genre = _context.Genres.ToList(),
